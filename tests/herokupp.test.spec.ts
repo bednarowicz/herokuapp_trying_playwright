@@ -87,5 +87,76 @@ test.describe("Herokup tests" , () => {
         await expect(probablyMissingButton).toBeVisible()
         console.log('We needed ' + amountSiteRefreshed + ' reloads to show hiden button')
     })
+    test("Drag and Drop", async ({baseClass, page}) => {
+        await baseClass.goToPage("Drag and Drop")
+        const firstPlaceForSquare = page.locator('#column-a')
+        const secondPlaceForSquare = page.locator('#column-b')
+
+        const headerLocator = page.locator('header')
+
+        const firstHeader = firstPlaceForSquare.filter({has: headerLocator})
+        const secondHeader = secondPlaceForSquare.filter({has: headerLocator})
+
+        await firstPlaceForSquare.dragTo(secondPlaceForSquare)
+
+
+        await expect(firstHeader).toHaveText("B")
+        await expect(secondHeader).toHaveText("A")
+    })
+    test("Dropdown List", async ({baseClass, page}) => {
+        await baseClass.goToPage("Dropdown")
+        const dropdownList = page.locator('#dropdown')
+
+        await dropdownList.selectOption("Option 1")
+      
+        await expect(dropdownList).toHaveValue("1")        
+    })
+
+    test("Dynamic Content", async ({baseClass, page}) => { // refreshed page till jokes will be visible as 3rd picture
+        test.slow()
+        await baseClass.goToPage("Dynamic Content")
+        const thirdText = page.locator('#content .large-10').nth(2)
+        const thirdPicture = page.locator('img').nth(3)
+        const desiredImage:string = '/img/avatars/Original-Facebook-Geek-Profile-Avatar-7.jpg'
+        const desiredText:string = 'Voluptatem'
+        var actualText = await thirdText.textContent() 
+        var actualPictureSrc = await thirdPicture.getAttribute('src')
+        var actualTextTxt:string = <string>actualText
+        var actualPictureSrcTxt:string = <string>actualPictureSrc
+        // actualTextTxt.includes(desiredText) && 
+        while(!(actualPictureSrcTxt.includes(desiredImage))){
+            console.log(actualTextTxt)
+            console.log(actualPictureSrcTxt)
+            await page.reload()
+            actualText = await thirdText.textContent() 
+            actualPictureSrc = await thirdPicture.getAttribute('src')
+            var actualTextTxt:string = <string>actualText
+            var actualPictureSrcTxt:string = <string>actualPictureSrc
+            }
+        })
+        test("Dynamic Controls", async ({baseClass, page}) => {
+            await baseClass.goToPage("Dynamic Controls")
+            const checkbox = page.getByRole('checkbox')
+            const removeButton = page.getByRole('button', {name: "Remove" })
+            const checkboxMessage = page.locator('#checkbox-example #message')
+
+            await expect(checkbox).toBeEnabled()
+            await checkbox.click()
+            await expect(checkbox).toBeChecked()
+
+            await removeButton.click()
+            await expect(page.locator('#loading')).toBeHidden()
+            await expect(checkboxMessage).toContainText("It's gone!")    
+
+            const field = page.getByRole('textbox')
+            const enableButton = page.getByRole('button', {name: "Enable" })
+            const fieldMessage = page.locator('#input-example #message')
+            await expect(field).toBeDisabled()
+            await enableButton.click()
+            await expect(field).toBeEnabled()
+            await field.fill("Test")
+            expect(field).toHaveValue("Test")
+            
+        })
 
 })
