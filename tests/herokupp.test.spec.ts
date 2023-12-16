@@ -158,5 +158,30 @@ test.describe("Herokup tests" , () => {
             expect(field).toHaveValue("Test")
             
         })
+        test("Dynamic Loading1", async ({baseClass, page}) => {
+            await baseClass.goToPage("Dynamic Loading")
+            await page.getByRole('link', { name: 'Example 1: Element on page' }).click()
+            const hiddenText =  page.locator('h4').nth(1)
+            await page.getByRole('button').click()
+            await hiddenText.waitFor({state: 'visible'})
+            await expect(hiddenText).toBeVisible()
 
+            
+        })
+        test("Dynamic Loading2", async ({baseClass, page}) => {
+            await baseClass.goToPage("Dynamic Loading")
+            await page.getByRole('link', { name: 'Example 2: Element rendered after the fact' }).click()
+            const hiddenText =  page.locator('h4').nth(1)
+            await page.getByRole('button').click()
+            await hiddenText.waitFor({state: 'visible'})
+            await expect(hiddenText).toBeVisible()
+            
+            
+        })
+        test("Entry Ad", async ({baseClass, page}) => {
+            await baseClass.goToPage("Entry Ad")
+            await expect(page.locator('#modal')).toBeVisible()
+            await page.getByText('Close', { exact: true }).click()
+            await expect(page.locator('#modal')).toBeHidden()
+        })
 })
